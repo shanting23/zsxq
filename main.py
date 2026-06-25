@@ -1,7 +1,7 @@
 import os
 import requests
 import datetime
-import google.generativeai as genai
+from google import genai
 
 from config import CHANNELS
 
@@ -9,8 +9,7 @@ from config import CHANNELS
 YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
-genai.configure(api_key=GEMINI_API_KEY)
-model = genai.GenerativeModel("gemini-1.5-flash")
+client = genai.Client(api_key=GEMINI_API_KEY)
 
 
 # ===== STEP 1: 获取最新视频 =====
@@ -31,12 +30,11 @@ def get_latest_video(channel_id):
     return {
         "video_id": item["id"]["videoId"],
         "title": item["snippet"]["title"],
-        "channel": item["snippet"]["channelTitle"],
         "description": item["snippet"]["description"]
     }
 
 
-# ===== STEP 2: Gemini总结（基于URL）=====
+# ===== STEP 2: Gemini总结 =====
 def summarize(video_url, title, description):
     prompt = f"""
 这是一个YouTube财经视频：
@@ -50,19 +48,23 @@ def summarize(video_url, title, description):
 视频链接：
 {video_url}
 
-请总结视频内容（允许合理推测）：
+请总结视频内容：
 
-输出格式：
+输出：
 👉 TL;DR（一句话）
 👉 主要内容（3点）
 👉 涉及主题（AI / 利率 / TSLA等）
 
-用中文，结构清晰。
+用中文
 """
 
     try:
-        response = model.generate_content(prompt)
+        response = client.models.generate_content(
+            model="gemini-1.5-flash",
+            contents=prompt
+        )
         return response.text
+
     except Exception as e:
         print(f"❌ Gemini error: {e}")
         return "Summary failed"
@@ -74,7 +76,7 @@ def aggregate_tldr(all_summaries):
 基于以下多个视频总结，提炼3条“市场共识”：
 
 要求：
-- 不能加入主观判断
+- 不加入主观判断
 - 只总结共性
 - 每条一句话
 - 中文输出
@@ -84,8 +86,12 @@ def aggregate_tldr(all_summaries):
 """
 
     try:
-        response = model.generate_content(prompt)
+        response = client.models.generate_content(
+            model="gemini-1.5-flash",
+            contents=prompt
+        )
         return response.text
+
     except Exception as e:
         print("❌ TLDR failed:", e)
         return "TL;DR生成失败"
@@ -130,10 +136,12 @@ def main():
             v.get("description", "")
         )
 
-        v["summary"] = summary
-        v["channel"] = ch["name"]
-
-        videos.append(v)
+        videos.append({
+            "title": v["title"],
+            "channel": ch["name"],
+            "video_id": v["video_id"],
+            "summary": summary
+        })
 
     if not videos:
         print("❌ No valid videos found")
