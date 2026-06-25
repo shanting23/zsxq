@@ -4,7 +4,6 @@ import datetime
 from youtube_transcript_api import YouTubeTranscriptApi
 import google.generativeai as genai
 
-# ✅ 从配置读取频道
 from config import CHANNELS
 
 # ===== CONFIG =====
@@ -26,7 +25,6 @@ def get_latest_video(channel_id):
 
     item = res["items"][0]
 
-    # 防止不是视频（playlist/channel）
     if item["id"]["kind"] != "youtube#video":
         print(f"⚠️ Not a video for {channel_id}")
         return None
@@ -38,12 +36,15 @@ def get_latest_video(channel_id):
     }
 
 
-# ===== STEP 2: 获取字幕 =====
+# ===== STEP 2: 获取字幕（✅已修复）=====
 def get_transcript(video_id):
     try:
-        transcript = YouTubeTranscriptApi.get_transcript(video_id)
-        text = " ".join([x["text"] for x in transcript])
+        api = YouTubeTranscriptApi()
+        transcript = api.fetch(video_id)
+
+        text = " ".join([x.text for x in transcript])
         return text
+
     except Exception as e:
         print(f"❌ Transcript failed for {video_id}: {e}")
         return None
@@ -76,7 +77,7 @@ def aggregate_tldr(all_summaries):
 基于以下多个视频总结，提炼3条“市场共识”：
 
 要求：
-- 不能加入主观判断
+- 不加入主观判断
 - 只总结共性
 - 每条一句话
 - 中文输出
@@ -87,11 +88,12 @@ def aggregate_tldr(all_summaries):
     try:
         response = model.generate_content(prompt)
         return response.text
-    except:
-        return "TL;DR failed"
+    except Exception as e:
+        print("❌ TLDR failed:", e)
+        return "TL;DR生成失败"
 
 
-# ===== STEP 5: 关键词统计（简单规则版）======
+# ===== STEP 5: 关键词统计 =====
 def topic_count(text):
     keywords = {
         "AI / 半导体": ["ai", "nvidia", "chip"],
@@ -116,7 +118,7 @@ def main():
     print("✅ Loaded channels:", CHANNELS)
 
     for ch in CHANNELS:
-        print(f"--- Processing {ch['name']}")
+        print(f"\n--- Processing {ch['name']}")
 
         v = get_latest_video(ch["channel_id"])
         if not v:
@@ -137,15 +139,14 @@ def main():
         print("❌ No valid videos found")
         return
 
-    # ===== 聚合 =====
+    # ===== 聚合结果 =====
     all_text = "\n\n".join([v["summary"] for v in videos])
-
     tldr = aggregate_tldr(all_text)
     topics = topic_count(all_text)
 
     today = datetime.date.today()
 
-    # ===== 输出 =====
+    # ===== 输出markdown =====
     output = f"""## 📊 今日美股市场共识（基于5个头部博主）
 
 📅 {today}
@@ -180,7 +181,7 @@ def main():
     with open("output.md", "w") as f:
         f.write(output)
 
-    print("✅ Generated output:")
+    print("\n✅ Generated output:\n")
     print(output)
 
 
