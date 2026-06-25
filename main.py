@@ -60,7 +60,7 @@ def summarize(video_url, title, description):
 
     try:
         response = client.models.generate_content(
-            model="gemini-1.5-flash",
+            model="gemini-2.0-flash",
             contents=prompt
         )
         return response.text
@@ -87,7 +87,7 @@ def aggregate_tldr(all_summaries):
 
     try:
         response = client.models.generate_content(
-            model="gemini-1.5-flash",
+            model="gemini-2.0-flash",
             contents=prompt
         )
         return response.text
