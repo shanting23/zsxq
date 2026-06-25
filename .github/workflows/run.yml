@@ -20,7 +20,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install requests youtube-transcript-api google-generativeai
+          pip install requests youtube-transcript-api google-genai
 
       - name: Run script
         env:
