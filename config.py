@@ -1,22 +1,30 @@
 CHANNELS = [
     {
-        "name": "Meet Kevin",
-        "channel_id": "UCxxxxxxxxxxxxx"
+        "name": "Jeremy Lefebvre Makes Money",
+        "channel_id": "UC12lnsYNt8_VthTNOuOGTmQ"
     },
     {
-        "name": "Real Vision",
-        "channel_id": "UCyyyyyyyyyyyy"
+        "name": "牛顿师兄",
+        "channel_id": "UCveCI6CK6oPtuy24YH9ii9g"
     },
     {
-        "name": "Channel 3",
-        "channel_id": "UCzzzzzzzzzz"
+        "name": "Dr. Mike Invest 投资频道",
+        "channel_id": "UCDt0TPBLQMTpdi6UhXcJtMA"
     },
     {
-        "name": "Channel 4",
-        "channel_id": "UCaaaaaaaaaaa"
+        "name": "阳光财经",
+        "channel_id": "UC2I5em6UyBpQiO-8ZW0nV3w"
     },
     {
-        "name": "Channel 5",
-        "channel_id": "UCbbbbbbbbbbb"
+        "name": "NaNa说美股",
+        "channel_id": "UCFhJ8ZFg9W4kLwFTBBNIjOw"
+    },
+    {
+        "name": "小左美股第一视角",
+        "channel_id": "UCH60IM5V3OO2LrNIDueG26Q"
+    },
+    {
+        "name": "视野环球财经",
+        "channel_id": "UCFQsi7WaF5X41tcuOryDk8w"
     }
 ]
