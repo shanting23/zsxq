@@ -2,7 +2,7 @@ import os
 import requests
 import datetime
 from google import genai
-
+import time
 from config import CHANNELS
 
 # ===== CONFIG =====
@@ -63,6 +63,7 @@ def summarize(video_url, title, description):
             model="gemini-3-flash-preview",
             contents=prompt
         )
+        time.sleep(10)
         return response.text
 
     except Exception as e:
@@ -90,6 +91,7 @@ def aggregate_tldr(all_summaries):
             model="gemini-3-flash-preview",
             contents=prompt
         )
+        time.sleep(10)
         return response.text
 
     except Exception as e:
